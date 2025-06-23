@@ -7,13 +7,18 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  config => {
-    const accessToken = AsyncStorage.getItem('@token');
+  async config => {
+    try {
+      const accessToken = await AsyncStorage.getItem('@token');
 
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+      return config;
+    } catch (error) {
+      console.log('Error retrieving access token: ', error);
+      return config;
     }
-    return config;
   },
   error => {
     return Promise.reject(error);

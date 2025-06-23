@@ -113,12 +113,12 @@ const LoginScreen = ({ navigation }) => {
       <Header title={'Todoboard'} />
 
       <View style={styles.subContainer}>
-        <Spacer mT={50} />
+        <Spacer mT={30} />
         <Text style={[styles.heading, { color: textColors[theme] }]}>
           Login
         </Text>
 
-        <Spacer mT={50} />
+        <Spacer mT={30} />
 
         <Text style={[styles.label, { color: textColors[theme] }]}>Email:</Text>
         <Spacer mT={10} />
@@ -151,6 +151,7 @@ const LoginScreen = ({ navigation }) => {
             onSubmit();
           }}
           loading={loading}
+          disabled={loading}
         />
 
         <Spacer mT={30} />

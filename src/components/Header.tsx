@@ -1,22 +1,28 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { HeaderProps } from '../types/HeaderTypes';
-import { colors, textColors } from '../constants/colors';
+import { backgroundColors, colors, textColors } from '../constants/colors';
 import { ms } from 'react-native-size-matters';
 import { useSelector } from 'react-redux';
 import Ionicon from 'react-native-vector-icons/Ionicons';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 
 const Header: React.FC<HeaderProps> = ({ title, isHome }) => {
   const theme = useSelector(state => state.themeReducer.theme);
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
       <View style={styles.left}>
         {isHome && (
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.dispatch(DrawerActions.openDrawer());
+            }}
+          >
             <Ionicon
               name="menu"
-              color={textColors[theme]}
+              color={colors.white}
               style={{ fontSize: ms(25) }}
             />
           </TouchableOpacity>
