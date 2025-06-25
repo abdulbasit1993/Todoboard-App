@@ -9,6 +9,8 @@ const api = axios.create({
 api.interceptors.request.use(
   async config => {
     try {
+      config.headers['X-App-Type'] = 'mobile';
+
       const accessToken = await AsyncStorage.getItem('@token');
 
       if (accessToken) {
