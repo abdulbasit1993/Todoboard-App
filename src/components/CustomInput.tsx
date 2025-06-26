@@ -5,7 +5,13 @@ import { borderColors, textColors } from '../constants/colors';
 import { useSelector } from 'react-redux';
 import Ionicon from 'react-native-vector-icons/Ionicons';
 
-const CustomInput = ({ value, onChangeText, placeholder, inputType }) => {
+const CustomInput = ({
+  value,
+  onChangeText,
+  placeholder,
+  inputType,
+  multiline,
+}) => {
   const theme = useSelector(state => state.themeReducer.theme);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +22,7 @@ const CustomInput = ({ value, onChangeText, placeholder, inputType }) => {
         styles.container,
         {
           borderColor: borderColors[theme],
+          height: multiline ? ms(150) : ms(45),
         },
       ]}
     >
@@ -61,7 +68,15 @@ const CustomInput = ({ value, onChangeText, placeholder, inputType }) => {
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor={'#A9A9A9'}
-          style={[styles.input, { color: textColors[theme] }]}
+          style={[
+            styles.input,
+            {
+              color: textColors[theme],
+              textAlignVertical: multiline ? 'top' : 'center',
+            },
+          ]}
+          multiline={multiline}
+          numberOfLines={multiline ? 6 : 1}
         />
       )}
     </View>

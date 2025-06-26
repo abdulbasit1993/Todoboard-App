@@ -6,9 +6,29 @@ import Spacer from '../components/Spacer';
 import { ms } from 'react-native-size-matters';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from '../redux/slices/userSlice';
+import { textColors } from '../constants/colors';
+import FloatingActionButton from '../components/FloatingActionButton';
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const theme = useSelector(state => state.themeReducer.theme);
+  const user = useSelector(state => state.userReducer.user);
+
+  const greeting: () => string = () => {
+    let now: Date = new Date();
+    let hours: number = now.getHours();
+    let greeting: string = '';
+
+    if (hours >= 5 && hours < 12) {
+      greeting = 'Morning';
+    } else if (hours >= 12 && hours < 16) {
+      greeting = 'Afternoon';
+    } else {
+      greeting = 'Evening';
+    }
+
+    return greeting;
+  };
 
   useEffect(() => {
     dispatch(fetchUser());
@@ -26,7 +46,17 @@ const HomeScreen = () => {
 
       <View style={styles.subContainer}>
         <Spacer mT={50} />
+
+        <Text
+          style={[styles.greetText, { color: textColors[theme] }]}
+        >{`Good ${greeting()}!`}</Text>
       </View>
+
+      <FloatingActionButton
+        onPress={() => {
+          navigation.navigate('AddTodo');
+        }}
+      />
     </ScreenWrapper>
   );
 };
@@ -37,6 +67,10 @@ const styles = StyleSheet.create({
   },
   subContainer: {
     paddingHorizontal: ms(15),
+  },
+  greetText: {
+    fontSize: ms(20),
+    fontWeight: '700',
   },
 });
 

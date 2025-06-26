@@ -17,8 +17,6 @@ const CustomDrawer = props => {
 
   const user = useSelector(state => state.userReducer.user);
 
-  console.log('User (Drawer) ======>>>  ', user);
-
   return (
     <View
       style={[styles.container, { backgroundColor: backgroundColors[theme] }]}
