@@ -21,7 +21,7 @@ const HomeScreen = ({ navigation }) => {
 
     if (hours >= 5 && hours < 12) {
       greeting = 'Morning';
-    } else if (hours >= 12 && hours < 16) {
+    } else if (hours >= 12 && hours < 17) {
       greeting = 'Afternoon';
     } else {
       greeting = 'Evening';
@@ -42,7 +42,7 @@ const HomeScreen = ({ navigation }) => {
         translucent={false}
       />
 
-      <Header title={'Todoboard'} isHome={true} />
+      <Header title={'Todoboard'} withDrawer={true} />
 
       <View style={styles.subContainer}>
         <Spacer mT={50} />

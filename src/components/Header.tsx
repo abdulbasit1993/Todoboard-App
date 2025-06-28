@@ -7,14 +7,14 @@ import { useSelector } from 'react-redux';
 import Ionicon from 'react-native-vector-icons/Ionicons';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 
-const Header: React.FC<HeaderProps> = ({ title, isHome }) => {
+const Header: React.FC<HeaderProps> = ({ title, withDrawer }) => {
   const theme = useSelector(state => state.themeReducer.theme);
   const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
       <View style={styles.left}>
-        {isHome && (
+        {withDrawer && (
           <TouchableOpacity
             onPress={() => {
               navigation.dispatch(DrawerActions.openDrawer());

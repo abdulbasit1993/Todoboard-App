@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ToastAndroid,
 } from 'react-native';
 import ScreenWrapper from '../components/ScreenWrapper';
 import Header from '../components/Header';
@@ -18,13 +19,20 @@ import { textColors, colors, borderColors } from '../constants/colors';
 import { ms } from 'react-native-size-matters';
 import { useSelector } from 'react-redux';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import moment from 'moment';
+import api from '../utils/api';
 
 const AddTodoScreen = () => {
   const theme = useSelector(state => state.themeReducer.theme);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isDateSelected, setIsDateSelected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  console.log('selectedDate: ', selectedDate.toLocaleDateString());
+  console.log('isDateSelected: ', isDateSelected);
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -36,10 +44,56 @@ const AddTodoScreen = () => {
 
   const handleConfirm = (date: Date) => {
     console.log('A date has been picked: ', date.toDateString());
+    setSelectedDate(date);
+    setIsDateSelected(true);
     hideDatePicker();
   };
 
-  const onSubmit = () => {};
+  const onSubmit = async () => {
+    setLoading(true);
+    const sanitizedTitle = title.trim();
+    const sanitizedDescription = description.trim();
+
+    try {
+      if (!sanitizedTitle) {
+        ToastAndroid.show('Title is Required!', ToastAndroid.SHORT);
+        return;
+      }
+
+      if (isDateSelected !== false) {
+        if (selectedDate < new Date()) {
+          ToastAndroid.show('Please select a future date!', ToastAndroid.SHORT);
+        }
+      }
+
+      let payload = {
+        title: sanitizedTitle,
+        description: sanitizedDescription,
+      };
+
+      if (isDateSelected !== false) {
+        payload = {
+          ...payload,
+          dueDate: selectedDate,
+        };
+      }
+
+      const response = await api.post('/todos/add', payload);
+
+      console.log('response data (add todo): ', response);
+
+      if (response?.data?.success) {
+        ToastAndroid.show(response?.data?.message, ToastAndroid.SHORT);
+        setTitle('');
+        setDescription('');
+        setSelectedDate(new Date());
+        setIsDateSelected(false);
+      }
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ScreenWrapper style={styles.container}>
@@ -54,7 +108,7 @@ const AddTodoScreen = () => {
         style={styles.container}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <Header title={'Add Todo'} />
+        <Header title={'Add Todo'} withDrawer={true} />
 
         <ScrollView>
           <View style={styles.subContainer}>
@@ -101,15 +155,18 @@ const AddTodoScreen = () => {
               activeOpacity={0.8}
               style={[styles.datePicker, { borderColor: borderColors[theme] }]}
             >
-              <Text style={{ color: '#A9A9A9' }}>Tap to Select Due Date</Text>
+              {isDateSelected ? (
+                <Text style={{ color: textColors[theme] }}>
+                  {moment(selectedDate).format('DD-MM-YYYY')}
+                </Text>
+              ) : (
+                <Text style={{ color: '#A9A9A9' }}>Tap to Select Due Date</Text>
+              )}
             </TouchableOpacity>
 
             <DateTimePickerModal
               isVisible={isDatePickerVisible}
               mode="date"
-              onChange={(event, selectedDate) => {
-                console.log('selectedDate: ', selectedDate);
-              }}
               onConfirm={handleConfirm}
               onCancel={hideDatePicker}
             />

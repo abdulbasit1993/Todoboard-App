@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import {
   DrawerContentScrollView,
   DrawerItem,
@@ -11,6 +11,8 @@ import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import initials from 'initials';
 import Spacer from './Spacer';
+import { menuItems } from '../constants/menuData';
+import Ionicon from 'react-native-vector-icons/Ionicons';
 
 const CustomDrawer = props => {
   const theme = useSelector(state => state.themeReducer.theme);
@@ -21,6 +23,18 @@ const CustomDrawer = props => {
     <View
       style={[styles.container, { backgroundColor: backgroundColors[theme] }]}
     >
+      <View>
+        <TouchableOpacity
+          onPress={() => props?.navigation?.closeDrawer()}
+          style={styles.closeIconBtn}
+        >
+          <Ionicon
+            name="close"
+            color={textColors[theme]}
+            style={{ fontSize: ms(30) }}
+          />
+        </TouchableOpacity>
+      </View>
       <View style={styles.initialsContainer}>
         <Text style={{ color: colors.white, fontSize: ms(20) }}>
           {initials(user?.username)}
@@ -34,7 +48,21 @@ const CustomDrawer = props => {
         </Text>
       </View>
       <DrawerContentScrollView {...props}>
-        <DrawerItemList {...props} />
+        {/* <DrawerItemList {...props} /> */}
+
+        {menuItems?.map(item => {
+          return (
+            <DrawerItem
+              key={item.id}
+              label={item.title}
+              onPress={() => {
+                props.navigation.navigate(item.screenName);
+              }}
+              style={{ backgroundColor: backgroundColors[theme] }}
+              labelStyle={{ color: textColors[theme] }}
+            />
+          );
+        })}
       </DrawerContentScrollView>
       <DrawerItem
         label={'Logout'}
@@ -76,6 +104,11 @@ const styles = StyleSheet.create({
   nameText: {
     color: colors.white,
     fontSize: ms(17),
+  },
+  closeIconBtn: {
+    position: 'absolute',
+    right: ms(15),
+    top: ms(15),
   },
 });
 

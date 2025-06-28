@@ -104,11 +104,7 @@ const SignUpScreen = ({ navigation }) => {
         sanitizedUsername !== '' &&
         sanitizedPassword === sanitizedConfirmPassword
       ) {
-        console.log('form inputs are valid, calling signup API...');
-
         const response = await api.post('/auth/signup', payload);
-
-        console.log('response data (signup) ===>> ', response);
 
         if (response?.data?.success === true) {
           AsyncStorage.setItem('@token', response?.data?.token);
