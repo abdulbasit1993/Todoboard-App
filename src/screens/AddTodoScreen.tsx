@@ -22,7 +22,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import api from '../utils/api';
 
-const AddTodoScreen = () => {
+const AddTodoScreen = ({ navigation }) => {
   const theme = useSelector(state => state.themeReducer.theme);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -88,6 +88,7 @@ const AddTodoScreen = () => {
         setDescription('');
         setSelectedDate(new Date());
         setIsDateSelected(false);
+        navigation.navigate('MyTodos');
       }
     } catch (error) {
     } finally {

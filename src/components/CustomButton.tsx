@@ -15,13 +15,13 @@ const CustomButton: React.FC<CustomButtonTypes> = ({
   onPress,
   loading,
   disabled,
-  width = '100%',
+  customStyle,
 }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.8}
-      style={[styles.container, { width: width }]}
+      style={[styles.container, customStyle]}
       disabled={disabled}
     >
       {loading ? (

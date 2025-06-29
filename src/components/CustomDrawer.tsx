@@ -13,11 +13,23 @@ import initials from 'initials';
 import Spacer from './Spacer';
 import { menuItems } from '../constants/menuData';
 import Ionicon from 'react-native-vector-icons/Ionicons';
+import { ModalRef } from '../App';
 
 const CustomDrawer = props => {
   const theme = useSelector(state => state.themeReducer.theme);
 
   const user = useSelector(state => state.userReducer.user);
+
+  const onLogoutPress = () => {
+    props.navigation.closeDrawer();
+    ModalRef.current?.showModal('ConfirmLogout', {
+      onConfirm: () => {
+        ModalRef.current?.hideModal();
+        AsyncStorage.clear();
+        props.navigation.replace('Auth');
+      },
+    });
+  };
 
   return (
     <View
@@ -48,8 +60,6 @@ const CustomDrawer = props => {
         </Text>
       </View>
       <DrawerContentScrollView {...props}>
-        {/* <DrawerItemList {...props} /> */}
-
         {menuItems?.map(item => {
           return (
             <DrawerItem
@@ -67,9 +77,7 @@ const CustomDrawer = props => {
       <DrawerItem
         label={'Logout'}
         onPress={() => {
-          console.log('Logout pressed...');
-          AsyncStorage.clear();
-          props.navigation.navigate('Auth');
+          onLogoutPress();
         }}
         style={styles.logoutItem}
         labelStyle={styles.logoutLabel}

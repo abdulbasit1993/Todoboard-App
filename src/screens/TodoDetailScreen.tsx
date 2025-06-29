@@ -1,5 +1,12 @@
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  StatusBar,
+  ToastAndroid,
+} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { ms } from 'react-native-size-matters';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,15 +16,32 @@ import Spacer from '../components/Spacer';
 import { textColors } from '../constants/colors';
 import { capitalizeFirstLetter } from '../utils/helper';
 import moment from 'moment';
+import CustomButton from '../components/CustomButton';
+import { ModalRef } from '../App';
+import api from '../utils/api';
 
-const TodoDetailScreen = ({ route }) => {
+const TodoDetailScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const theme = useSelector(state => state.themeReducer.theme);
   const data = route?.params?.data;
 
   console.log('data from route params: ', data);
 
-  useFocusEffect(useCallback(() => {}, []));
+  const handleDeleteTodo = async () => {
+    try {
+      const response = await api.delete(`/todos/delete/${data?._id}`);
+
+      console.log('response from delete todo: ', response);
+
+      if (response?.data?.success) {
+        ModalRef?.current?.hideModal();
+        ToastAndroid.show(response?.data?.message, ToastAndroid.SHORT);
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.log('Error deleting todo: ', error);
+    }
+  };
 
   return (
     <ScreenWrapper style={styles.container}>
@@ -106,6 +130,25 @@ const TodoDetailScreen = ({ route }) => {
           <Text style={[styles.contentText, { color: textColors[theme] }]}>
             {moment(data?.updatedAt).format('DD-MM-YYYY')}
           </Text>
+
+          <Spacer mT={30} />
+
+          <View>
+            <CustomButton title={'Edit'} />
+
+            <Spacer mT={10} />
+
+            <CustomButton
+              title={'Delete'}
+              onPress={() => {
+                ModalRef.current?.showModal('DeleteTodo', {
+                  onConfirm() {
+                    handleDeleteTodo();
+                  },
+                });
+              }}
+            />
+          </View>
         </View>
       </ScrollView>
     </ScreenWrapper>
