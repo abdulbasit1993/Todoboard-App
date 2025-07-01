@@ -17,13 +17,15 @@ import { textColors } from '../constants/colors';
 import { capitalizeFirstLetter } from '../utils/helper';
 import moment from 'moment';
 import CustomButton from '../components/CustomButton';
-import { ModalRef } from '../App';
 import api from '../utils/api';
+import { useModal } from '../components/ModalProvider';
 
 const TodoDetailScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const theme = useSelector(state => state.themeReducer.theme);
   const data = route?.params?.data;
+
+  const { showModal, hideModal } = useModal();
 
   console.log('data from route params: ', data);
 
@@ -34,7 +36,7 @@ const TodoDetailScreen = ({ navigation, route }) => {
       console.log('response from delete todo: ', response);
 
       if (response?.data?.success) {
-        ModalRef?.current?.hideModal();
+        hideModal();
         ToastAndroid.show(response?.data?.message, ToastAndroid.SHORT);
         navigation.goBack();
       }
@@ -141,7 +143,7 @@ const TodoDetailScreen = ({ navigation, route }) => {
             <CustomButton
               title={'Delete'}
               onPress={() => {
-                ModalRef.current?.showModal('DeleteTodo', {
+                showModal('DeleteTodo', {
                   onConfirm() {
                     handleDeleteTodo();
                   },

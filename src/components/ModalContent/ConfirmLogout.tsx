@@ -32,7 +32,7 @@ const ConfirmLogout = ({ onClose, onConfirm }: ModalProps) => {
         <CustomButton
           title="Yes"
           onPress={() => {
-            onConfirm();
+            onConfirm?.();
           }}
           customStyle={{ width: '40%' }}
         />

@@ -13,18 +13,20 @@ import initials from 'initials';
 import Spacer from './Spacer';
 import { menuItems } from '../constants/menuData';
 import Ionicon from 'react-native-vector-icons/Ionicons';
-import { ModalRef } from '../App';
+import { useModal } from './ModalProvider';
 
 const CustomDrawer = props => {
   const theme = useSelector(state => state.themeReducer.theme);
 
   const user = useSelector(state => state.userReducer.user);
 
+  const { showModal, hideModal } = useModal();
+
   const onLogoutPress = () => {
     props.navigation.closeDrawer();
-    ModalRef.current?.showModal('ConfirmLogout', {
+    showModal('ConfirmLogout', {
       onConfirm: () => {
-        ModalRef.current?.hideModal();
+        hideModal();
         AsyncStorage.clear();
         props.navigation.replace('Auth');
       },

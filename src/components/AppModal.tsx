@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import ReactNativeModal from 'react-native-modal';
 import { ModalProps, iModalRef, ModalTypes } from '../types/ModalTypes';
@@ -7,31 +7,27 @@ import ConfirmLogout from './ModalContent/ConfirmLogout';
 import { backgroundColors, borderColors } from '../constants/colors';
 import { useSelector } from 'react-redux';
 import ConfirmDeleteTodo from './ModalContent/ConfirmDeleteTodo';
+import { useModal } from './ModalProvider';
 
-const AppModal = forwardRef<iModalRef>((props, ref) => {
+interface AppModalProps {
+  isVisible: boolean;
+  modalType: ModalTypes | null;
+  modalProps: Partial<ModalProps>;
+}
+
+const AppModal: React.FC<AppModalProps> = ({
+  isVisible,
+  modalType,
+  modalProps,
+}) => {
   const theme = useSelector(state => state.themeReducer.theme);
-  const [isVisible, setIsVisible] = useState(false);
-  const [modalType, setModalType] = useState<ModalTypes | null>(null);
-  const [modalProps, setModalProps] = useState<Partial<ModalProps>>({});
-
-  useImperativeHandle(ref, () => {
-    return {
-      showModal: (type: ModalTypes, props = {}) => {
-        setModalType(type);
-        setModalProps(props);
-        setIsVisible(true);
-      },
-      hideModal: () => {
-        setIsVisible(false);
-        setModalType(null);
-        setModalProps({});
-      },
-    };
-  });
-
+  const { hideModal } = useModal();
   const renderContent = () => {
     const commonProps = {
-      onClose: () => setIsVisible(false),
+      onClose: () => {
+        hideModal();
+        modalProps.onClose?.();
+      },
       ...modalProps,
     };
 
@@ -66,7 +62,7 @@ const AppModal = forwardRef<iModalRef>((props, ref) => {
       </View>
     </ReactNativeModal>
   );
-});
+};
 
 const styles = StyleSheet.create({
   modal: {
