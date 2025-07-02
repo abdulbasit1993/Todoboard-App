@@ -5,6 +5,7 @@ import HomeScreen from '../screens/HomeScreen';
 import AddTodoScreen from '../screens/AddTodoScreen';
 import TodosScreen from '../screens/TodosScreen';
 import TodoDetailScreen from '../screens/TodoDetailScreen';
+import EditTodoScreen from '../screens/EditTodoScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -18,6 +19,7 @@ const DrawerNavigator = () => {
       <Drawer.Screen name="AddTodo" component={AddTodoScreen} />
       <Drawer.Screen name="MyTodos" component={TodosScreen} />
       <Drawer.Screen name="TodoDetail" component={TodoDetailScreen} />
+      <Drawer.Screen name="EditTodo" component={EditTodoScreen} />
     </Drawer.Navigator>
   );
 };

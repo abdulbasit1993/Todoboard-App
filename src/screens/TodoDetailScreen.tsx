@@ -136,7 +136,14 @@ const TodoDetailScreen = ({ navigation, route }) => {
           <Spacer mT={30} />
 
           <View>
-            <CustomButton title={'Edit'} />
+            <CustomButton
+              title={'Edit'}
+              onPress={() => {
+                navigation.navigate('EditTodo', {
+                  data,
+                });
+              }}
+            />
 
             <Spacer mT={10} />
 
