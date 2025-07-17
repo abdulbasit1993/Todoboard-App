@@ -9,9 +9,24 @@ const initialState = {
 
 export const fetchTodos = createAsyncThunk(
   'todo/fetchTodos',
-  async (_, thunkAPI) => {
+  async ({ text, status }, thunkAPI) => {
+    let endpoint = '/todos/get';
+
+    const queryParams = [];
+
+    if (text) {
+      queryParams.push(`search=${encodeURIComponent(text)}`);
+    }
+    if (status) {
+      queryParams.push(`status=${encodeURIComponent(status)}`);
+    }
+
+    if (queryParams.length > 0) {
+      endpoint += `?${queryParams.join('&')}`;
+    }
+
     try {
-      const response = await api.get('/todos/get');
+      const response = await api.get(endpoint);
       return response?.data?.todos;
     } catch (error) {
       console.log('Error fetching todos: ', error.response);

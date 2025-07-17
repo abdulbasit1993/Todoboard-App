@@ -41,10 +41,6 @@ const EditTodoScreen = ({ navigation, route }) => {
     { label: 'Completed', value: 'completed' },
   ]);
 
-  console.log('dropdown value: ', value);
-
-  console.log('data (EditTodo) : ', data);
-
   const showDatePicker = () => {
     setDatePickerVisibility(true);
   };

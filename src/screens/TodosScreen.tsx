@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StatusBar,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { ms } from 'react-native-size-matters';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,10 +14,14 @@ import Header from '../components/Header';
 import ScreenWrapper from '../components/ScreenWrapper';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchTodos } from '../redux/slices/todoSlice';
-import { borderColors, textColors } from '../constants/colors';
+import { borderColors, colors, textColors } from '../constants/colors';
 import Spacer from '../components/Spacer';
 import SearchBar from '../components/SearchBar';
 import { capitalizeFirstLetter } from '../utils/helper';
+import _ from 'lodash';
+import DropDownPicker from 'react-native-dropdown-picker';
+import CustomButton from '../components/CustomButton';
+import Checkbox from '../components/Checkbox';
 
 const TodosScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -24,13 +29,22 @@ const TodosScreen = ({ navigation }) => {
   const theme = useSelector(state => state.themeReducer.theme);
   const todos = useSelector(state => state.todoReducer.data);
   const loading = useSelector(state => state.todoReducer.loading);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([
+    { label: 'Pending', value: 'pending' },
+    { label: 'Completed', value: 'completed' },
+  ]);
 
   const renderTodoItem = ({ item }) => {
     return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate('TodoDetail', { data: item })}
+      <View
+        // onPress={() => navigation.navigate('TodoDetail', { data: item })}
         style={[styles.todoItemContainer, { borderColor: borderColors[theme] }]}
       >
+        {/* <View>
+          <Checkbox />
+        </View> */}
         <View>
           <Text style={[styles.todoItemText, { color: textColors[theme] }]}>
             {item.title}
@@ -41,15 +55,35 @@ const TodosScreen = ({ navigation }) => {
             {capitalizeFirstLetter(item.status)}
           </Text>
         </View>
-      </TouchableOpacity>
+      </View>
     );
+  };
+
+  const debouncedChangeHandler = useMemo(
+    () => _.debounce(text => getTodos(text), 1500),
+    [],
+  );
+
+  const handleInputChange = text => {
+    setSearchTerm(text);
+    debouncedChangeHandler(text);
+  };
+
+  const getTodos = text => {
+    dispatch(fetchTodos({ text, status: value }));
   };
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(fetchTodos());
-    }, []),
+      getTodos();
+    }, [value]),
   );
+
+  useEffect(() => {
+    return () => {
+      debouncedChangeHandler.cancel();
+    };
+  }, [debouncedChangeHandler, value]);
 
   return (
     <ScreenWrapper style={styles.container}>
@@ -64,14 +98,79 @@ const TodosScreen = ({ navigation }) => {
       <Spacer mT={20} />
 
       <View style={styles.subContainer}>
-        <SearchBar
-          value={searchTerm}
-          onChangeText={text => setSearchTerm(text)}
-        />
+        <SearchBar value={searchTerm} onChangeText={handleInputChange} />
 
         <Spacer mT={20} />
 
-        <FlatList data={todos} renderItem={renderTodoItem} />
+        <View style={styles.filterContainer}>
+          <View style={{ width: '60%' }}>
+            <DropDownPicker
+              open={open}
+              value={value}
+              items={items}
+              setOpen={setOpen}
+              setValue={setValue}
+              setItems={setItems}
+              listMode="MODAL"
+              placeholder="Filter by status"
+              placeholderStyle={{ color: '#A9A9A9' }}
+              style={[
+                styles.datePicker,
+                {
+                  borderColor: borderColors[theme],
+                  backgroundColor: 'transparent',
+                },
+              ]}
+              textStyle={{
+                color: textColors[theme],
+                fontSize: ms(16),
+              }}
+              dropDownContainerStyle={{
+                borderColor: borderColors[theme],
+                borderRadius: 8,
+                backgroundColor: '#fff',
+              }}
+              listItemLabelStyle={{
+                color: colors.black,
+              }}
+              arrowIconStyle={{
+                tintColor: textColors[theme],
+              }}
+              zIndex={1000}
+            />
+          </View>
+
+          <View style={{ width: '40%' }}>
+            <CustomButton
+              title="Clear Filter"
+              onPress={() => {
+                setValue(null);
+              }}
+            />
+          </View>
+        </View>
+
+        {loading ? (
+          <View>
+            <ActivityIndicator size={'large'} color={textColors[theme]} />
+          </View>
+        ) : (
+          <FlatList
+            data={todos}
+            renderItem={renderTodoItem}
+            ListEmptyComponent={() => {
+              return (
+                <View style={{ alignItems: 'center' }}>
+                  <Text
+                    style={[styles.noDataText, { color: textColors[theme] }]}
+                  >
+                    No Todos Found
+                  </Text>
+                </View>
+              );
+            }}
+          />
+        )}
       </View>
     </ScreenWrapper>
   );
@@ -94,6 +193,21 @@ const styles = StyleSheet.create({
   },
   todoItemText: {
     fontSize: ms(16),
+  },
+  noDataText: {
+    fontSize: ms(18),
+  },
+  datePicker: {
+    width: '90%',
+    height: ms(45),
+    paddingHorizontal: ms(10),
+    borderWidth: 1,
+    borderRadius: 8,
+    justifyContent: 'center',
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    marginBottom: ms(25),
   },
 });
 
