@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Header from '../components/Header';
 import ScreenWrapper from '../components/ScreenWrapper';
 import { useFocusEffect } from '@react-navigation/native';
-import { fetchTodos } from '../redux/slices/todoSlice';
+import { fetchTodos, toggleTodoStatus } from '../redux/slices/todoSlice';
 import { borderColors, colors, textColors } from '../constants/colors';
 import Spacer from '../components/Spacer';
 import SearchBar from '../components/SearchBar';
@@ -22,13 +22,14 @@ import _ from 'lodash';
 import DropDownPicker from 'react-native-dropdown-picker';
 import CustomButton from '../components/CustomButton';
 import Checkbox from '../components/Checkbox';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 const TodosScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const theme = useSelector(state => state.themeReducer.theme);
   const todos = useSelector(state => state.todoReducer.data);
-  const loading = useSelector(state => state.todoReducer.loading);
+  const loading = useSelector(state => state.todoReducer.fetchLoading);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
@@ -36,24 +37,41 @@ const TodosScreen = ({ navigation }) => {
     { label: 'Completed', value: 'completed' },
   ]);
 
+  const handleToggleStatus = item => {
+    console.log('item: ', item);
+
+    dispatch(toggleTodoStatus(item?._id));
+  };
+
   const renderTodoItem = ({ item }) => {
     return (
       <View
-        // onPress={() => navigation.navigate('TodoDetail', { data: item })}
         style={[styles.todoItemContainer, { borderColor: borderColors[theme] }]}
       >
-        {/* <View>
-          <Checkbox />
-        </View> */}
-        <View>
-          <Text style={[styles.todoItemText, { color: textColors[theme] }]}>
-            {item.title}
-          </Text>
+        <View style={styles.checkboxContainer}>
+          <Checkbox
+            isChecked={item.status === 'completed'}
+            onToggle={() => {
+              handleToggleStatus(item);
+            }}
+          />
+          <View>
+            <Text style={[styles.todoItemText, { color: textColors[theme] }]}>
+              {item.title}
+            </Text>
+          </View>
         </View>
+
         <View>
-          <Text style={[styles.todoItemText, { color: textColors[theme] }]}>
-            {capitalizeFirstLetter(item.status)}
-          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('TodoDetail', { data: item })}
+          >
+            <FontAwesomeIcon
+              name="edit"
+              color={textColors[theme]}
+              style={{ fontSize: ms(20) }}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -83,7 +101,7 @@ const TodosScreen = ({ navigation }) => {
     return () => {
       debouncedChangeHandler.cancel();
     };
-  }, [debouncedChangeHandler, value]);
+  }, [debouncedChangeHandler]);
 
   return (
     <ScreenWrapper style={styles.container}>
@@ -186,6 +204,7 @@ const styles = StyleSheet.create({
   todoItemContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     borderWidth: 1,
     borderRadius: 8,
     padding: ms(15),
@@ -193,6 +212,7 @@ const styles = StyleSheet.create({
   },
   todoItemText: {
     fontSize: ms(16),
+    marginLeft: ms(10),
   },
   noDataText: {
     fontSize: ms(18),
@@ -208,6 +228,10 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     marginBottom: ms(25),
+  },
+  checkboxContainer: {
+    width: '60%',
+    flexDirection: 'row',
   },
 });
 

@@ -15,7 +15,7 @@ const Checkbox = ({ isChecked, onToggle }) => {
       style={[styles.container, { borderColor: textColors[theme] }]}
     >
       {isChecked && (
-        <MaterialDesignIcon
+        <FeatherIcon
           name="check"
           color={textColors[theme]}
           style={{ fontSize: ms(20) }}
